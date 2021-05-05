@@ -10,8 +10,12 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using IdentityServer4;
 using IdentityServer4.Stores;
+using Microsoft.EntityFrameworkCore;
 using Pdbc.Idp.Data;
 
 namespace Pdbc.Idp
@@ -28,12 +32,15 @@ namespace Pdbc.Idp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
-            services.AddCors();
+            services.AddControllersWithViews();
+
+            //services.AddMvc();
+            //services.AddCors();
 
             var identityServerDBConnectionString =
                 Configuration["ConnectionStrings:IdentityServerDBConnectionString"];
 
+            var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
 
             // Setup Identity Server 4
             services.AddIdentityServer()
@@ -46,11 +53,50 @@ namespace Pdbc.Idp
                 .AddInMemoryApiResources(IdpApiResources.GetApiResources())
                 .AddInMemoryClients(IdpClients.GetClients())
 
+                //.AddConfigurationStore(options =>
+                //{
+                //    options.ConfigureDbContext = b => b.UseSqlServer(identityServerDBConnectionString,
+                //        sql => sql.MigrationsAssembly(migrationsAssembly));
+                //})
+                //.AddOperationalStore(options =>
+                //{
+                //    options.ConfigureDbContext = b => b.UseSqlServer(identityServerDBConnectionString,
+                //        sql => sql.MigrationsAssembly(migrationsAssembly));
+                //})
+
                 .AddClientStore<InMemoryClientStore>()
                 .AddResourceStore<InMemoryResourcesStore>()
                 .AddDeveloperSigningCredential();
 
-            services.AddControllers();
+            services.AddAuthentication()
+                .AddGoogle("Google", options =>
+                {
+                    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+
+                    options.ClientId = "925417044554-bsjt1rtt0npu421equo2elurn6h9639i.apps.googleusercontent.com";
+                    options.ClientSecret = "AEEo2KVJwwP-gECRgcvTgocj";
+
+                    options.Events = new Microsoft.AspNetCore.Authentication.OAuth.OAuthEvents()
+                    {
+                        OnCreatingTicket = context =>
+                        {
+                            var claims = new List<Claim>();
+                            claims.AddRange(context.Principal.Claims);
+                            claims.Add(new Claim("tenant", "belgianstatedepartment"));
+
+                            // overwrite the old principal 
+                            context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, "Google"));
+
+                            return Task.CompletedTask;
+                        },
+                        OnTicketReceived = context =>
+                        {
+                            var test = context.Principal;
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
+
 
             services.AddSwaggerGen(c =>
             {
@@ -82,7 +128,7 @@ namespace Pdbc.Idp
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapDefaultControllerRoute();
             });
         }
     }

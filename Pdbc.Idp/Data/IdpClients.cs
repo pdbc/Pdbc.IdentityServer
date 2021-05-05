@@ -26,85 +26,110 @@ namespace Pdbc.Idp.Data
 
                     // scopes that client has access to
                     AllowedScopes = { Constants.ScopeForApiOne }
-                }
-                ,
+                },
+                // interactive ASP.NET Core MVC client
                 new Client
                 {
-                    ClientName = "Sample Web Client",
-                    ClientId = "samplewebclient",
-                    AllowedGrantTypes = GrantTypes.Hybrid,
-                    AccessTokenType = AccessTokenType.Reference,
-                    RequireConsent = false,
-                    AllowOfflineAccess = true,
-
-                    FrontChannelLogoutUri = "https://localhost:44318/Home/IDPTriggeredLogout",
-
-                    RedirectUris = new List<string>()
-                    {
-                        "https://localhost:44318/signin-oidc",
-                        "https://localhost:44319/signin-oidc"
-                    },
-                    AllowedScopes =
-                    {
-                        IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        "sampleapi"
-                    },
+                    ClientId = Constants.ClientIdForMvcTwo,
                     ClientSecrets =
                     {
-                        new Secret("secret".Sha256())
+                        new Secret(Constants.ClientSecretForMvcTwo.Sha256())
                     },
 
-                    PostLogoutRedirectUris =
-                    {
-                        "https://localhost:44318/signout-callback-oidc",
-                        "https://localhost:44319/signout-callback-oidc"
-                    }
-                },
+                    AllowedGrantTypes = GrantTypes.Code,
+                    
+                    // where to redirect to after login
+                    RedirectUris = { $"{Constants.MvcTwoUrlSecure}/signin-oidc" },
 
-                new Client
-                {
-                    ClientName = "Sample User Agent Client",
-                    ClientId = "sampleuseragentclient",
-                    AllowedGrantTypes = GrantTypes.Implicit,
-                    AccessTokenType = AccessTokenType.Reference,
-                    AllowAccessTokensViaBrowser = true,
-                    RequireConsent = false,
+                    // where to redirect to after logout
+                    PostLogoutRedirectUris = { $"{Constants.MvcTwoUrlSecure}/signout-callback-oidc" },
 
-                    RedirectUris = new List<string>()
-                    {
-                        "https://localhost:4200/signin-oidc",
-                        "https://localhost:4200/redirect-silentrenew"
-                    },
-                    AllowedScopes =
+                    AllowedScopes = new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        "sampleapi"
-                    },
-                    PostLogoutRedirectUris =
-                    {
-                        "https://localhost:4200/"
-                    }
-                },
-                new Client
-                {
-                    ClientName = "Sample Token Exchange Client",
-                    ClientId = "sampletokenexchangeclient",
-                    AllowedGrantTypes = new[] { "urn:ietf:params:oauth:grant-type:token-exchange" },
-                    RequireConsent = false,
-
-                    AllowedScopes =
-                    {
-                        IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        "samplesecondapi"
-                    },
-                    ClientSecrets =
-                    {
-                        new Secret("secret".Sha256())
+                        IdentityServerConstants.StandardScopes.Profile
                     }
                 }
+
+
+                //,
+                //new Client
+                //{
+                //    ClientName = "Sample Web Client",
+                //    ClientId = "samplewebclient",
+                //    AllowedGrantTypes = GrantTypes.Hybrid,
+                //    AccessTokenType = AccessTokenType.Reference,
+                //    RequireConsent = false,
+                //    AllowOfflineAccess = true,
+
+                //    FrontChannelLogoutUri = "https://localhost:44318/Home/IDPTriggeredLogout",
+
+                //    RedirectUris = new List<string>()
+                //    {
+                //        "https://localhost:44318/signin-oidc",
+                //        "https://localhost:44319/signin-oidc"
+                //    },
+                //    AllowedScopes =
+                //    {
+                //        IdentityServerConstants.StandardScopes.OpenId,
+                //        IdentityServerConstants.StandardScopes.Profile,
+                //        "sampleapi"
+                //    },
+                //    ClientSecrets =
+                //    {
+                //        new Secret("secret".Sha256())
+                //    },
+
+                //    PostLogoutRedirectUris =
+                //    {
+                //        "https://localhost:44318/signout-callback-oidc",
+                //        "https://localhost:44319/signout-callback-oidc"
+                //    }
+                //},
+
+                //new Client
+                //{
+                //    ClientName = "Sample User Agent Client",
+                //    ClientId = "sampleuseragentclient",
+                //    AllowedGrantTypes = GrantTypes.Implicit,
+                //    AccessTokenType = AccessTokenType.Reference,
+                //    AllowAccessTokensViaBrowser = true,
+                //    RequireConsent = false,
+
+                //    RedirectUris = new List<string>()
+                //    {
+                //        "https://localhost:4200/signin-oidc",
+                //        "https://localhost:4200/redirect-silentrenew"
+                //    },
+                //    AllowedScopes =
+                //    {
+                //        IdentityServerConstants.StandardScopes.OpenId,
+                //        IdentityServerConstants.StandardScopes.Profile,
+                //        "sampleapi"
+                //    },
+                //    PostLogoutRedirectUris =
+                //    {
+                //        "https://localhost:4200/"
+                //    }
+                //},
+                //new Client
+                //{
+                //    ClientName = "Sample Token Exchange Client",
+                //    ClientId = "sampletokenexchangeclient",
+                //    AllowedGrantTypes = new[] { "urn:ietf:params:oauth:grant-type:token-exchange" },
+                //    RequireConsent = false,
+
+                //    AllowedScopes =
+                //    {
+                //        IdentityServerConstants.StandardScopes.OpenId,
+                //        IdentityServerConstants.StandardScopes.Profile,
+                //        "samplesecondapi"
+                //    },
+                //    ClientSecrets =
+                //    {
+                //        new Secret("secret".Sha256())
+                //    }
+                //}
             };
         }
     }
